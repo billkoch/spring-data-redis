@@ -55,11 +55,15 @@ public class RedisCacheManager implements CacheManager {
 		Cache c = caches.get(name);
 		if (c == null) {
 			long expiration = computeExpiration(name);
-			c = new RedisCache(name, (usePrefix ? cachePrefix.prefix(name) : null), template, expiration);
+			c = buildNewRedisCache(name, expiration);
 			caches.put(name, c);
 		}
 
 		return c;
+	}
+	
+	protected Cache buildNewRedisCache(String name, long expiration) {
+		return new RedisCache(name, (usePrefix ? cachePrefix.prefix(name) : null), template, expiration);
 	}
 
 	private long computeExpiration(String name) {
@@ -103,5 +107,17 @@ public class RedisCacheManager implements CacheManager {
 	 */
 	public void setExpires(Map<String, Long> expires) {
 		this.expires = (expires != null ? new ConcurrentHashMap<String, Long>(expires) : null);
+	}
+
+	public RedisTemplate getTemplate() {
+		return template;
+	}
+
+	public boolean isUsePrefix() {
+		return usePrefix;
+	}
+
+	public RedisCachePrefix getCachePrefix() {
+		return cachePrefix;
 	}
 }
